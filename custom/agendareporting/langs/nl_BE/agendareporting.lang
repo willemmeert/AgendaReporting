@@ -1,0 +1,75 @@
+# Copyright (C) 2020 Willem Meert <willem.meert@mema.be>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleAgendaReportingName'
+ModuleAgendaReportingName = AgendaReporting
+# Module description 'ModuleAgendaReportingDesc'
+ModuleAgendaReportingDesc = Meer rapportage van gebeurtenissen (Agenda)
+
+AgendaReportingFilterTitle = Filters voor rapportage documenten
+AgendaReportingFilterDateFrom = Datum van
+AgendaReportingFilterDateTo = tot
+AgendaReportingFilterPage = Iedere dag op nieuwe pagina
+
+#
+# Admin page
+#
+AgendaReportingSetup = Setup AgendaReporting
+Settings = Settings
+AgendaReportingSetupPage = Setup pagina AgendaReporting
+AGENDAREPORTING_MYPARAM1 = My param 1
+AGENDAREPORTING_MYPARAM1Tooltip = My param 1 tooltip
+AGENDAREPORTING_MYPARAM2=My param 2
+AGENDAREPORTING_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+AgendaReportingAbout = About AgendaReporting
+AgendaReportingAboutPage = About pagina AgendaReporting
+
+#
+# Sample page
+#
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+#
+# Model 'history'
+#
+AgendaReporting_history_Title = Historiek
+AgendaReporting_history_Made = Aangemaakt op:
+AgendaReporting_history_Page = Blz.
+AgendaReporting_history_Type = Type
+AgendaReporting_history_Category = Categorie
+AgendaReporting_history_Regarding = Betreffende
+AgendaReporting_history_Contact = Contact
+AgendaReporting_history_Tel = T
+AgendaReporting_history_EMail = @
+
+
+
+

@@ -1,0 +1,58 @@
+# Copyright (C) 2020 Willem Meert <willem.meert@mema.be>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleAgendaReportingName'
+ModuleAgendaReportingName = AgendaReporting
+# Module description 'ModuleAgendaReportingDesc'
+ModuleAgendaReportingDesc = More reporting options for Agenda
+
+AgendaReportingFilterTitle = Reporting Documents Filters
+AgendaReportingFilterDateFrom = Date from
+AgendaReportingFilterDateTo = to
+AgendaReportingFilterPage = New page each day
+
+#
+# Admin page
+#
+AgendaReportingSetup = AgendaReporting setup
+Settings = Settings
+AgendaReportingSetupPage = AgendaReporting setup page
+AGENDAREPORTING_MYPARAM1 = My param 1
+AGENDAREPORTING_MYPARAM1Tooltip = My param 1 tooltip
+AGENDAREPORTING_MYPARAM2=My param 2
+AGENDAREPORTING_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+AgendaReportingAbout = About AgendaReporting
+AgendaReportingAboutPage = AgendaReporting about page
+
+#
+# Sample page
+#
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
