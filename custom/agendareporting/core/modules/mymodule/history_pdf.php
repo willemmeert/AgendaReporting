@@ -89,9 +89,9 @@ class history_pdf
 	public $transprefix;
 	
 	/**
-	 * @var string $language
+	 * @var Translate $doclanguage
 	 */
-	public $lang_id;
+	public $doclanguage;
 	
 	/**
 	 * @var string $type
@@ -138,7 +138,7 @@ class history_pdf
 	 */
 	public function __construct($db, $user=-1, $group=-1, $datestart=0, $dateend=0, $model='history', $langid='', $datenewpage=0)
 	{
-//	    global $conf, $langs;
+	    global $conf, $langs;
 	    
 		$this->db = $db;
 		$this->description = "Agenda Reporting - {$model}";
@@ -148,23 +148,21 @@ class history_pdf
 		$this->date_start = $datestart;
 		$this->date_end = $dateend;
 		$this->model = $model;
-//		if (empty($langid)) {
-		    $this->lang_id = $langid;
-//		}
-//		else 
-//		{
-//		    $this->language = new Translate('', $conf);
-//		    $this->language->setDefaultLang($langid);
-//		}
-		
-		
+		if (empty($langid)) {
+		    $this->doclanguage = $langs;
+		}
+		else 
+		{
+		    $this->doclanguage = new Translate('', $conf);
+		    $this->doclanguage->setDefaultLang($langid);
+		}		
 		$this->datenewpage = $datenewpage;
 		$this->transprefix = "AgendaReporting_".$model."_";
 
 		// Page size for A4 format
 		$this->type = 'pdf';
 		$this->page_format = pdf_getFormat();
-		$this->page_margin = array ( "left" => 15, "right" => 10, "top" => 10, "bottom" => 35 );
+		$this->page_margin = array ( "left" => 15, "right" => 10, "top" => 10, "bottom" => 30 );
 	}
 
 	/**
@@ -202,14 +200,12 @@ class history_pdf
 	public function write_file()
 	{
 		global $user, $conf, $langs, $hookmanager;
-
-		$outputlangs=$langs;
 		
 		// For backward compatibility with FPDF, force output charset to ISO, because FPDF expect text to be encoded in ISO
 //		if (!empty($conf->global->MAIN_USE_FPDF)) $outputlangs->charset_output = 'ISO-8859-1';
 
 		// Load traductions files required by page
-		$outputlangs->loadLangs(array("main", "dict", "companies", "agendareporting@agendareporting"));
+		$this->doclanguage->loadLangs(array("main", "dict", "companies", "agendareporting@agendareporting"));
 
         $dir = $this->getDataDirectory();
         $date = new DateTime();
@@ -238,44 +234,44 @@ class history_pdf
 			global $action;
 			$object = new stdClass();
 
-			$parameters = array('file'=>$file, 'outputlangs'=>$outputlangs);
+			$parameters = array('file'=>$file, 'outputlangs'=>$this->doclanguage);
 			$reshook = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
 
-            $this->$pdf = pdf_getInstance($this->page_format);
-            $this->$pdf->SetAutoPageBreak(false);                  // we will do our own header/footer, so do not allow automatic page breaks
+            $this->pdf = pdf_getInstance($this->page_format);
+            $this->pdf->SetAutoPageBreak(false);                  // we will do our own header/footer, so do not allow automatic page breaks
 
             if (class_exists('TCPDF'))
             {
-                $this->$pdf->setPrintHeader(false);
-                $this->$pdf->setPrintFooter(false);
+                $this->pdf->setPrintHeader(false);
+                $this->pdf->setPrintFooter(false);
             }
             
-            // Add fonts for our report
-            $this->$pdf->AddFont('dejavusans','','dejavusans.php');
-            $this->$pdf->AddFont('dejavusansb','B', 'dejavusansb.php');
-            $this->$pdf->AddFont('dejavuserif','','dejavuserif.php');
-            $this->$pdf->AddFont('dejavuserifb','B', 'dejavuserifb.php');
-            
-            $this->$pdf->SetFont('dejavusans','',11);
+/*            // Add fonts for our report
+            $this->pdf->AddFont('dejavusans','','dejavusans.php');
+            $this->pdf->AddFont('dejavusansb','', 'dejavusansb.php');
+            $this->pdf->AddFont('dejavuserif','','dejavuserif.php');
+            $this->pdf->AddFont('dejavuserifb','', 'dejavuserifb.php');
+*/            
+            $this->pdf->SetFont('dejavusans','',11);
 
-//			$this->$pdf->Open();
-			$this->$pdf->SetDrawColor(128, 128, 128);
-			$this->$pdf->SetFillColor(220, 220, 220);
+//			$this->pdf->Open();
+			$this->pdf->SetDrawColor(128, 128, 128);
+			$this->pdf->SetFillColor(220, 220, 220);
 
-			$this->$pdf->SetTitle($langs->convToOutputCharset($outputlangs->trans($this->transprefix.'Title')));
-//			$this->$pdf->SetSubject($outputlangs->convToOutputCharset($this->subject));
-			$this->$pdf->SetCreator("Dolibarr ".DOL_VERSION);
-			$this->$pdf->SetAuthor($langs->convToOutputCharset($user->getFullName($langs)));
-//			$this->$pdf->SetKeywords($outputlangs->convToOutputCharset($this->title." ".$this->subject));
+			$this->pdf->SetTitle($langs->convToOutputCharset($this->doclanguage->trans($this->transprefix.'Title')));
+//			$this->pdf->SetSubject($outputlangs->convToOutputCharset($this->subject));
+			$this->pdf->SetCreator("Dolibarr ".DOL_VERSION);
+			$this->pdf->SetAuthor($langs->convToOutputCharset($user->getFullName($langs)));
+//			$this->pdf->SetKeywords($outputlangs->convToOutputCharset($this->title." ".$this->subject));
 
-			$this->$pdf->SetMargins($this->page_margin["left"], $this->page_margin["top"], $this->page_margin["right"]); // Left, Top, Right
+			$this->pdf->SetMargins($this->page_margin["left"], $this->page_margin["top"], $this->page_margin["right"]); // Left, Top, Right
 
 			$this->_pages(); // Write content
 
 //			if (method_exists($pdf, 'AliasNbPages')) $pdf->AliasNbPages();
 
-			$this->$pdf->Close();
-			$this->$pdf->Output($file, 'F');
+			$this->pdf->Close();
+			$this->pdf->Output($file, 'F');
 
 			// Add pdfgeneration hook
 			if (!is_object($hookmanager))
@@ -284,7 +280,7 @@ class history_pdf
 				$hookmanager = new HookManager($this->db);
 			}
 			$hookmanager->initHooks(array('pdfgeneration'));
-			$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
+			$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$this->doclanguage);
 			global $action;
 			$reshook = $hookmanager->executeHooks('afterPDFCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 			if ($reshook < 0)
@@ -309,12 +305,10 @@ class history_pdf
 	 */
 	private function _pages()
 	{
-	    global $langs;
-	    
 	    $height = 3;   // for seperation
 	    
 		$sql = "SELECT soc.nom as nom, soc.address as address, soc.zip as zip, soc.town as town, soc.email as socemail, soc.phone as socphone,";
-		$sql .= " ac.id, ac.datep as dp, ac.code as accode, ac.percent as percent, ac.fk_element as fk_element, ac.elementtype as elementtype,";
+		$sql .= " ac.id, ac.datep as dp, ac.code as code, ac.note as note, ac.fk_element as fk_element, ac.elementtype as elementtype,";
 		$sql .= " socp.lastname as lastname, socp.firstname as firstname, socp.phone_mobile as phone_mobile, socp.email as emailp,";
 		$sql .= " u.firstname as ufirstname, u.lastname as ulastname, ace.actionregarding as regarding, ace.actioncategory as category";
 		$sql .= " FROM ".MAIN_DB_PREFIX."actioncomm as ac";
@@ -337,7 +331,7 @@ class history_pdf
 //		$projectstatic = new Project($this->db);
 
 		dol_syslog(get_class($this)."::_page", LOG_DEBUG);
-		$this->$pdf->SetSubject($sql);
+//		$this->$pdf->SetSubject($sql);
 		$resql = $this->db->query($sql);
 		if ($resql)
 		{
@@ -366,7 +360,7 @@ class history_pdf
 				
 				// see if page break/header is needed before outputting current record
 				if (($pagenb <= 0) ||
-				    ( $y > ($this->$pdf->getPageHeight()-$this->page_margin["bottom"])) ||
+				    ( $y > ($this->pdf->getPageHeight()-$this->page_margin["bottom"])) ||
 				    ( ($this->datenewpage!=0) && (dol_print_date($this->db->jdate($obj->dp), "day") != dol_print_date($this->db->jdate($prevdate), "day")))
 				    ) {
 				        if($pagenb>0) {   // do a page footer first, then a new page
@@ -376,101 +370,130 @@ class history_pdf
 				        $prevdate = $obj->dp;
 				        $y = $this->_pagehead(++$pagenb, $prevdate, $hname);
 			    }
-			    
-			    
-    		    $this->$pdf->SetFont('dejavuserif', '', 10);  // base font to use in document
-			
-			    
-				
-/*				$y = max($y, $pdf->GetY(), $y0, $y1, $y2, $y3);
+			    			    
+    		    $this->pdf->SetFont('dejavuserif', '', 10);  // base font to use in document
 
-				// Calculate height of text
-				$text = '';
-				if (!preg_match('/^'.preg_quote($obj->label, '/').'/', $obj->note)) $text = $obj->label."\n";
-				$text .= dolGetFirstLineOfText(dol_string_nohtmltag($obj->note), 2);
-				// Add status to text
-				$text .= "\n";
-				$status = $outputlangs->trans("Status").': '.dol_htmlentitiesbr_decode($eventstatic->getLibStatut(1, 1));
-				$text .= $status;
-				if ($obj->fk_project > 0)
-				{
-					$projectstatic->fetch($obj->fk_project);
-					if ($projectstatic->ref) {
-						$text .= ($status ? ' - ' : '').$outputlangs->transnoentitiesnoconv("Project").": ".dol_htmlentitiesbr_decode($projectstatic->ref);
-					}
-				}
-
-				//print 'd'.$text; exit;
-				$nboflines = dol_nboflines($text);
-
-				$heightlinemax = max(2 * $height, $nboflines * $height);
-				// Check if there is enough space to print record
-				if ((1 + $y + $heightlinemax) >= ($this->page_hauteur - $this->marge_haute))
-				{
-					// We need to break page
-					$pagenb++;
-					$y = $this->_pagehead($pdf, $outputlangs, $pagenb);
-					$y++;
-					$pdf->SetFont('', '', 8);
-				}
-				$y++;
-*/
     		    // Third party data
-    		    $this->$pdf->SetLineWidth(0.2);    		    
-    		    $this->$pdf->SetXY($this->page_margin["left"]+1, $y);
-    		    $this->$pdf->SetFont('','B');
-    		    $this->$pdf->Cell(80,0,$obj->nom);
-    		    $this->$pdf->SetFont('','');
-    		    $this->$pdf->Cell(5,0,'');
-    		    $this->$pdf->Cell(60,0,$obj->zip." ".$obj->town);
-    		    $this->$pdf->Cell(0,0,$langs->trans($this->transprefix."Tel").": ".$obj->socphone,0,1,'R');
-    		    $this->$pdf->SetX($this->page_margin["left"]+1);
-    		    $this->$pdf->Cell(120,0,$obj->address);
-    		    $this->$pdf->Cell(0,0,$obj->socemail,0,1,'R',false,"mailto:".$obj->socemail);
-    		    $this->$pdf->Rect($this->page_margin["left"],
-    		               $y,
-    		               $this->$pdf->getPageWidth()-$this->page_margin["left"]-$this->page_margin["right"],
-    		               $this->$pdf->GetY()-$y+1);
+    		    $this->pdf->SetLineWidth(0.2);    		    
+    		    $this->pdf->SetXY($this->page_margin["left"]+1, $y);
+    		    $this->pdf->SetFont('dejavuserifb');
+    		    $this->pdf->Cell(80,0,$obj->nom);
+    		    $this->pdf->SetFont('dejavuserif');
+    		    $this->pdf->Cell(5,0,'');
+    		    $this->pdf->Cell(60,0,$obj->zip." ".$obj->town);
+    		    $this->pdf->Cell(0,0,$this->doclanguage->trans($this->transprefix."Tel").": ".$obj->socphone,0,1,'R');
+    		    $this->pdf->SetX($this->page_margin["left"]+1);
+    		    $this->pdf->Cell(120,0,$obj->address);
+    		    $this->pdf->Cell(0,0,$obj->socemail,0,1,'R',false,"mailto:".$obj->socemail);
+    		    $this->pdf->Rect($this->page_margin["left"],
+    		               $y-0.2,
+    		               $this->pdf->getPageWidth()-$this->page_margin["left"]-$this->page_margin["right"],
+    		               $this->pdf->GetY()-$y+0.5);
     		    
-    		    $y = $this->$pdf->GetY() + $height;
+    		    $y = $this->pdf->GetY() + $height*0.5;
     		        
-				// Date
-/*				$pdf->SetXY($this->marge_gauche, $y);
-				$textdate = dol_print_date($this->db->jdate($obj->dp), "day")."\n".dol_print_date($this->db->jdate($obj->dp), "hour");
-				if ($obj->dp2) {
-					if (dol_print_date($this->db->jdate($obj->dp), "day") != dol_print_date($this->db->jdate($obj->dp2), "day"))
-						$textdate .= " -> ".dol_print_date($this->db->jdate($obj->dp2), "day")." - ".dol_print_date($this->db->jdate($obj->dp2), "hour");
-					else
-						$textdate .= " -> ".dol_print_date($this->db->jdate($obj->dp2), "hour");
+				// LEFT first row: Date + user
+				$this->pdf->SetXY($this->page_margin["left"]+1, $y);
+				$textdate = dol_print_date($this->db->jdate($obj->dp), "day")." ".dol_print_date($this->db->jdate($obj->dp), "hour");
+				$this->pdf->Cell(70, 0, $textdate." - ".$obj->ufirstname." ".$obj->ulastname);
+				// RIGHT first row: contact name
+				$this->pdf->Cell(0, 0, $obj->firstname." ".$obj->lastname, 0, 1, 'R');				
+				
+				// LEFT second row: 'type' of action (which is 'code' database field)
+				$this->pdf->SetX($this->page_margin["left"]+1);
+				$this->pdf->SetFont('', 'B');
+				$this->pdf->Cell(26, 0, $this->doclanguage->trans($this->transprefix."Type").":");
+				$this->pdf->SetFont('', '');
+				$this->pdf->Cell(60, 0, $this->doclanguage->transnoentitiesnoconv("Action".$obj->code));
+				// RIGHT second row: contact mobile
+				$this->pdf->Cell(0, 0, $obj->phone_mobile, 0, 1, 'R');
+				$y = $this->pdf->GetY();
+				
+				// check if end-of-page reached
+				if ($y > ($this->pdf->getPageHeight()-$this->page_margin["bottom"])) {
+				    $this->_pagefoot($pagenb, $datetimeprinted);
+				    $prevdate = $obj->dp;
+				    $y = $this->_pagehead(++$pagenb, $prevdate, $hname);
+    		        $this->pdf->SetFont('dejavuserif', '', 10);  // base font to use in document
 				}
-				$textdate = $outputlangs->trans("ID").' '.$obj->id.' - '.$textdate;
-				$pdf->MultiCell(45 - $this->marge_gauche, $height, $textdate, 0, 'L', 0);
-				$y0 = $pdf->GetY();
+				
+				// LEFT third row: 'regarding'
+				$this->pdf->SetXY($this->page_margin["left"]+1, $y);
+				$this->pdf->SetFont('', 'B');
+				$this->pdf->Cell(26, 0, $this->doclanguage->trans($this->transprefix."Regarding").":");
+				$this->pdf->SetFont('', '');
+				$this->pdf->Cell(60, 0, $this->doclanguage->transnoentitiesnoconv("ActionRegarding".$obj->regarding));
+				// RIGHT third row: contact e-mail
+				$this->pdf->Cell(0, 0, $obj->emailp, 0, 1, 'R');
+				$y = $this->pdf->GetY();
+				
+				// LEFT fourth row: 'category'
+				$this->pdf->SetXY($this->page_margin["left"]+1, $y);
+				$this->pdf->SetFont('', 'B');
+				$this->pdf->Cell(26, 0, $this->doclanguage->trans($this->transprefix."Category").":");
+				$this->pdf->SetFont('', '');
+				$this->pdf->Cell(60, 0, $this->doclanguage->transnoentitiesnoconv("ActionCategory".$obj->category), 0, 1);
+				$y = $this->pdf->GetY();
 
-				// Third party
-				$pdf->SetXY(45, $y);
-				$pdf->MultiCell(28, $height, dol_trunc($outputlangs->convToOutputCharset($obj->thirdparty), 28), 0, 'L', 0);
-				$y1 = $pdf->GetY();
-
-				// Action code
-				$code = $obj->code;
-				if (empty($conf->global->AGENDA_USE_EVENT_TYPE))
-				{
-					if ($code == 'AC_OTH')      $code = 'AC_MANUAL';
-					if ($code == 'AC_OTH_AUTO') $code = 'AC_AUTO';
+				// check if end-of-page reached before printing note text
+				if ($y > ($this->pdf->getPageHeight()-$this->page_margin["bottom"])) {
+				    $this->_pagefoot($pagenb, $datetimeprinted);
+				    $prevdate = $obj->dp;
+				    $y = $this->_pagehead(++$pagenb, $prevdate, $hname);
+    		        $this->pdf->SetFont('dejavuserif', '', 10);  // base font to use in document
 				}
-				$pdf->SetXY(73, $y);
-				$labelactiontype = $outputlangs->transnoentitiesnoconv("Action".$code);
-				$labelactiontypeshort = $outputlangs->transnoentitiesnoconv("Action".$code.'Short');
-				$pdf->MultiCell(32, $height, dol_trunc($outputlangs->convToOutputCharset($labelactiontypeshort == "Action".$code.'Short' ? $labelactiontype : $labelactiontypeshort), 32), 0, 'L', 0);
-				$y2 = $pdf->GetY();
+				
+				// see if paging is required for note text
+				$txt_total = dol_string_onlythesehtmltags($obj->note);                                      // strip unwanted html
+				$w=$this->pdf->getPageWidth()-$this->page_margin["right"]-$this->page_margin["left"]-4;     // width of our cell
+				$lines_total = dol_nboflines_bis($txt_total);
+				
+				$lines_out = $lines_total;
+				$txt_out = $txt_total;
+				do {
+				    $savePage = $this->pdf->getPage();                                                      // save page number
+				    $this->pdf->startTransaction();                                                         // try to output, so wrap in Transaction
+	                $this->pdf->SetAutoPageBreak(true, $this->page_margin["bottom"]);
+	                $this->pdf->writeHTMLCell($w, 10, $this->page_margin["left"]+2, $y, $txt_out, 0, 1);
+	                if($savePage != $this->pdf->getPage()) {       // everything does not fit on the page
+	                    $this->pdf->rollbackTransaction(true);     // roll back
+	                    $lines_out--;                              // try with one line less
+	                    if ($lines_out<1) {                        // not even 1 line fits, new page first then
+        				    $this->_pagefoot($pagenb, $datetimeprinted);
+		          		    $prevdate = $obj->dp;
+				            $y = $this->_pagehead(++$pagenb, $prevdate, $hname);
+    		                $this->pdf->SetFont('dejavuserif', '', 10);  // base font to use in document
+    		                $lines_out = $lines_total;    // restart with complete text to output
+    		                $txt_out = $txt_total;
+	                    }
+	                    else {
+	                        $txt_out = dolGetFirstLineOfText($txt_total, $lines_out);
+	                    }	                        
+	                }
+	                else {  // current output text does fit on page
+	                    $this->pdf->commitTransaction();
+	                    $len_out = strlen($txt_out);
+	                    $len_total = strlen($txt_total);
+	                    if ( $len_out == $len_total ) { // all text was output
+	                        $txt_out = '';
+	                    }
+	                    else {  // still some text to output on next page
+        				    $this->_pagefoot($pagenb, $datetimeprinted);
+		          		    $prevdate = $obj->dp;
+				            $y = $this->_pagehead(++$pagenb, $prevdate, $hname);
+    		                $this->pdf->SetFont('dejavuserif', '', 10);             // base font to use in document
 
-				// Description of event
-				$pdf->SetXY(106, $y);
-				$pdf->MultiCell(94, $height, $outputlangs->convToOutputCharset(dol_string_nohtmltag($text, 0)), 0, 'L', 0);
-				$y3 = $pdf->GetY();
-*/
-				$y += $height;   // leave space for next record	
+    		                $txt_total = substr($txt_total, $len_out-3);            // remove already outputted text
+
+				            $lines_total = dol_nboflines_bis($txt_total);           // reset counters & strings
+							$lines_out = $lines_total;
+				            $txt_out = $txt_total;
+	                    }
+	                }
+				} while (strlen($txt_out)>0);
+
+				$this->pdf->SetAutoPageBreak(false);
+				$y = $this->pdf->GetY() + $height;                                  // get current pointer and leave space for next record			
 				$i++;
 			}
 			 $this->_pagefoot($pagenb, $datetimeprinted);
@@ -488,29 +511,27 @@ class history_pdf
 	 */
 	private function _pagehead($pagenb, $hdate, $hname)
 	{
-	    global $langs;
-	    
 		$height = 3;   // for seperation
 		
-		$this->$pdf->AddPage('','',($pagenb>1));
+		$this->pdf->AddPage('','',($pagenb>1));
 	    
 		// Show title
-		$this->$pdf->SetFont('dejavusans', 'B', 14);
+		$this->pdf->SetFont('dejavusansb', '', 14);
 		$y = $this->page_margin["top"];
-		$this->$pdf->SetXY($this->page_margin["left"], $y);
-		$this->$pdf->Cell(40, 0, $langs->convToOutputCharset($langs->trans($this->transprefix."Title")),0,0,'L',false,'',0,false,'L','T');
-		$this->$pdf->SetXY($this->page_margin["left"]+45, $y);
-        $this->$pdf->Cell(60, 0, dol_print_date($this->db->jdate($hdate), "daytextshort"),0,0,'L',false,'',0,false,'L','T');
-        $this->$pdf->SetXY(-60-$this->page_margin["right"], $y);
-        $this->$pdf->SetFontSize(12);
-        $this->$pdf->Cell(60, 0, $hname, 0, 0, 'R', false, '',0,false,'L','T');
+		$this->pdf->SetXY($this->page_margin["left"], $y);
+		$this->pdf->Cell(40, 0, $this->doclanguage->convToOutputCharset($this->doclanguage->trans($this->transprefix."Title")),0,0,'L',false,'',0,false,'L','T');
+		$this->pdf->SetXY($this->page_margin["left"]+45, $y);
+        $this->pdf->Cell(60, 0, dol_print_date($this->db->jdate($hdate), "daytextshort"),0,0,'L',false,'',0,false,'L','T');
+        $this->pdf->SetXY(-60-$this->page_margin["right"], $y);
+        $this->pdf->SetFontSize(12);
+        $this->pdf->Cell(60, 0, $hname, 0, 0, 'R', false, '',0,false,'L','T');
         
         // horizontale line divider
-        $this->$pdf->Ln(1.5);
-		$this->$pdf->SetDrawColor(0, 0, 0);
-		$y = $this->$pdf->GetY();
-		$this->$pdf->SetLineWidth(0.8);
-        $this->$pdf->Line($this->$pdf->GetX(), $y, $this->$pdf->getPageWidth() - $this->page_margin["right"], $y);
+        $this->pdf->Ln(1.5);
+		$this->pdf->SetDrawColor(0, 0, 0);
+		$y = $this->pdf->GetY();
+		$this->pdf->SetLineWidth(0.8);
+        $this->pdf->Line($this->pdf->GetX(), $y, $this->pdf->getPageWidth() - $this->page_margin["right"], $y);
         return $y+$height;
 	}
 	
@@ -523,18 +544,14 @@ class history_pdf
 	 */
 	private function _pagefoot($pagenb, $datep)
 	{
-	    global $langs;
-	    
-	    $this->$pdf->SetDrawColor(0, 0, 0);
-	    $this->$pdf->SetLineWidth(0.5);
-        $yline = $this->$pdf->getPageHeight()-20;	    
-	    $this->$pdf->Line($this->page_margin["left"], $yline, $this->$pdf->getPageWidth()-$this->page_margin["right"], $yline);
-	    $this->$pdf->SetXY($this->page_margin["left"], $yline+1);
-	    $this->$pdf->SetFont('dejavusans','',8);
-	    $this->$pdf->Cell(70,0, $langs->convToOutputCharset($langs->trans($this->transprefix."Made"))." ".$datep);
-	    $this->$pdf->SetX(-40);
-        $this->$pdf->Cell(40, 0, $langs->convToOutputCharset($langs->trans($this->transprefix."Page"))." ".$pagenb.' / '.$this->$pdf->getAliasNbPages(), 0, 'R', 0);
-	    
-	}
-	
+	    $this->pdf->SetDrawColor(0, 0, 0);
+	    $this->pdf->SetLineWidth(0.4);
+        $yline = $this->pdf->getPageHeight()-8;	    
+	    $this->pdf->Line($this->page_margin["left"], $yline, $this->pdf->getPageWidth()-$this->page_margin["right"], $yline);
+	    $this->pdf->SetXY($this->page_margin["left"], $yline+0.1);
+	    $this->pdf->SetFont('dejavusans','',8);
+	    $this->pdf->Cell(70,0, $this->doclanguage->convToOutputCharset($this->doclanguage->trans($this->transprefix."Made"))." ".$datep);
+	    $this->pdf->SetX(-40);
+        $this->pdf->Cell(40, 0, $this->doclanguage->convToOutputCharset($this->doclanguage->trans($this->transprefix."Page"))." ".$pagenb.'/ '.$this->pdf->getAliasNbPages(), 0, 'R', 0);
+  	}	
 }

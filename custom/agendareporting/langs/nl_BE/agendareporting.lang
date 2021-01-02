@@ -69,6 +69,75 @@ AgendaReporting_history_Regarding = Betreffende
 AgendaReporting_history_Contact = Contact
 AgendaReporting_history_Tel = T
 AgendaReporting_history_EMail = @
+# Text on models
+ActionAC_TEL=Telefoongesprek
+ActionAC_FAX=Fax verzenden
+ActionAC_PROP=Offerte verzenden
+ActionAC_EMAIL=E-mail verzenden
+ActionAC_EMAIL_IN=E-mail ontvangen
+ActionAC_RDV=Bezoek/Vergadering
+ActionAC_INT=Interventie
+ActionAC_CLO=Sluiten
+ActionAC_EMAILING=Bulkmail sturen
+ActionAC_FAC=Factuur per e-mail
+ActionAC_REL=Factuur per e-mail (herinnering)
+ActionAC_COM=Verkooporder per mail
+ActionAC_SHIP=Verzending
+ActionAC_SUP_ORD=Verzend bestelling per mail
+ActionAC_SUP_INV=Stuur leveranciersfactuur per mail
+ActionAC_OTH=Ander
+ActionAC_OTH_AUTO=Automatische gebeurtenis
+ActionAC_MANUAL=Handmatige gebeurtenis
+ActionAC_AUTO=Automatische gebeurtenis
+ActionAC_OTH_AUTOShort=Automatisch
+# ExtraField Regarding
+ActionRegardingDELI=Afleveren
+ActionRegardingAAN=Aanvraag klant
+ActionRegardingNEED=Bespreken noden
+ActionRegardingOFF=Bespreken offerte
+ActionRegardingOPP=Bespreken opportuniteit
+ActionRegardingORD=Bestelling
+ActionRegardingVISIT=Bezoek
+ActionRegardingDEMO=Demontratie
+ActionRegardingINST=Installatie
+ActionRegardingOPL=Opleiding
+ActionRegardingPRES=Presentatie
+ActionRegardingSERV=Service
+ActionRegardingPAY=Betalingskwestie
+ActionRegardingCONF=Bevestiging
+ActionRegardingFUP=Opvolging offerte
+ActionRegardingFUT=Opvolging ticket
+ActionRegardingFOL=Opvolging
+ActionRegardingSMEE=Plannen bezoek
+# ExtraField Category
+ActionCategory1=Onbekend
+ActionCategory2=Andere
+ActionCategory3=CNC
+ActionCategory4=Machines
+ActionCategory5=Gereedschappen
+ActionCategory6=Toebehoren
+ActionCategory7=Demonstratie
+ActionCategory8=Herstelling
+ActionCategory9=Installatie
+ActionCategory10=Intern
+ActionCategory11=Persoonlijk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
